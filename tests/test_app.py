@@ -91,3 +91,10 @@ def test_mcp_montado(client):
         "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "t", "version": "1"}}},
         headers={"Accept": "application/json, text/event-stream"})
     assert r.status_code == 200 and "Huellitas Vet" in r.text
+
+
+def test_mcp_sin_barra_final_sin_redireccion(client):
+    r = client.post("/mcp", json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
+        "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "t", "version": "1"}}},
+        headers={"Accept": "application/json, text/event-stream"}, follow_redirects=False)
+    assert r.status_code == 200 and "Huellitas Vet" in r.text

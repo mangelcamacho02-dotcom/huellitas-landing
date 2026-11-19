@@ -39,6 +39,26 @@ app = FastAPI(title="Huellitas Vet — Baño Navideño", lifespan=lifespan, docs
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 app.mount(config.mcp_path(), mcp_app)
 
+
+class MCPSinBarraFinal:
+    """Acepta la URL del MCP con o sin barra final, sin redirección 307.
+
+    Algunos clientes (como el conector de claude.ai) no siguen la redirección
+    de /mcp-xxx a /mcp-xxx/, así que reescribimos la ruta internamente.
+    """
+
+    def __init__(self, asgi_app):
+        self.app = asgi_app
+        self.ruta = config.mcp_path()
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope["path"] == self.ruta:
+            scope = dict(scope, path=self.ruta + "/", raw_path=(self.ruta + "/").encode())
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(MCPSinBarraFinal)
+
 templates = Jinja2Templates(directory=BASE / "templates")
 templates.env.globals.update(
     colones=config.colones,
