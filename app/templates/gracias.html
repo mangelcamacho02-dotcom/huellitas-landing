@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}¡Reserva recibida! · Huellitas Vet{% endblock %}
+{% block content %}
+<main class="contenedor gracias">
+  <section class="tarjeta centro">
+    <p class="icono" aria-hidden="true">🎄🐾</p>
+    <h1>¡Reserva recibida!</h1>
+    {% if mascota and dia %}
+      <p>Apartamos el cupo de <strong>{{ mascota }}</strong> para el <strong>{{ fecha_larga(dia) }}</strong>.</p>
+    {% else %}
+      <p>Recibimos tu solicitud.</p>
+    {% endif %}
+    <p>Te escribiremos por WhatsApp para confirmar la hora. El precio es {{ colones(cfg.PRECIO_OFERTA) }} y se paga el día de la cita.</p>
+    <a class="boton" href="/">Volver a la página</a>
+  </section>
+</main>
+{% endblock %}

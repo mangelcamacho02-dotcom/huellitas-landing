@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="hero">
+  <div class="contenedor">
+    <p class="marca"><span aria-hidden="true">🐾</span> Huellitas Vet</p>
+    <p class="temporada">Oferta de Navidad · {{ cfg.CIUDAD }}</p>
+    <h1>Baño Navideño Completo</h1>
+    <p class="bajada">Que tu perrito llegue a la cena de Navidad limpio, peinado y con su pañoleta nueva.</p>
+
+    <div class="precio" aria-label="Precio">
+      <span class="antes"><span class="sr">Antes </span><s>{{ colones(cfg.PRECIO_ANCLA) }}</s></span>
+      <span class="ahora"><span class="sr">Ahora </span>{{ colones(cfg.PRECIO_OFERTA) }}</span>
+      <span class="ahorro">Ahorras {{ colones(cfg.PRECIO_ANCLA - cfg.PRECIO_OFERTA) }}</span>
+    </div>
+
+    <a class="boton" href="#reservar">Reservar mi cupo</a>
+    <p class="cupos-hero">
+      {% if abiertas %}Quedan <strong>{{ estado.libres }}</strong> de {{ estado.cupos_totales }} cupos · solo {{ cfg.CUPOS_POR_DIA }} perritos por día{% else %}Reservas cerradas{% endif %}
+    </p>
+  </div>
+</header>
+
+<main class="contenedor">
+  <section class="tarjeta" aria-labelledby="t-incluye">
+    <h2 id="t-incluye">¿Qué incluye?</h2>
+    <ul class="incluye">
+      {% for item in cfg.INCLUYE %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+    <p class="nota">Para perros de todos los tamaños. Atendemos de lunes a sábado; los domingos descansamos.</p>
+  </section>
+
+  <section class="tarjeta limite" aria-labelledby="t-limite">
+    <h2 id="t-limite">Reserva antes del {{ fecha_larga(cfg.FECHA_LIMITE) }}</h2>
+    <p>Campaña del {{ fecha_larga(primer_dia) }} al {{ fecha_larga(ultimo_dia) }}.</p>
+    <div class="cuenta" id="cuenta" data-limite="{{ limite_iso }}" role="timer" aria-live="off">
+      <div><span id="c-d">–</span><small>días</small></div>
+      <div><span id="c-h">–</span><small>horas</small></div>
+      <div><span id="c-m">–</span><small>min</small></div>
+      <div><span id="c-s">–</span><small>seg</small></div>
+    </div>
+  </section>
+
+  <section class="tarjeta" id="reservar" aria-labelledby="t-form">
+    <h2 id="t-form">Reserva tu cupo</h2>
+
+    {% if errores.general %}
+      <p class="alerta" role="alert">{{ errores.general }}</p>
+    {% elif errores %}
+      <p class="alerta" role="alert">Revisa los campos marcados, por favor.</p>
+    {% endif %}
+
+    <form method="post" action="/reservar#reservar" novalidate>
+      <div class="campo">
+        <label for="nombre_dueno">Tu nombre</label>
+        <input id="nombre_dueno" name="nombre_dueno" type="text" autocomplete="name" required maxlength="80"
+               value="{{ v.nombre_dueno or '' }}" {% if errores.nombre_dueno %}aria-invalid="true" aria-describedby="e-nombre"{% endif %}>
+        {% if errores.nombre_dueno %}<p class="error" id="e-nombre">{{ errores.nombre_dueno }}</p>{% endif %}
+      </div>
+
+      <div class="campo">
+        <label for="whatsapp">WhatsApp</label>
+        <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"
+               placeholder="8888-8888" value="{{ v.whatsapp or '' }}"
+               aria-describedby="h-wa{% if errores.whatsapp %} e-wa{% endif %}" {% if errores.whatsapp %}aria-invalid="true"{% endif %}>
+        <p class="ayuda" id="h-wa">Te escribimos para confirmar la hora. Con o sin +506.</p>
+        {% if errores.whatsapp %}<p class="error" id="e-wa">{{ errores.whatsapp }}</p>{% endif %}
+      </div>
+
+      <div class="campo">
+        <label for="mascota">Nombre de tu mascota</label>
+        <input id="mascota" name="mascota" type="text" required maxlength="60"
+               value="{{ v.mascota or '' }}" {% if errores.mascota %}aria-invalid="true" aria-describedby="e-mascota"{% endif %}>
+        {% if errores.mascota %}<p class="error" id="e-mascota">{{ errores.mascota }}</p>{% endif %}
+      </div>
+
+      <fieldset class="campo" {% if errores.tamano %}aria-describedby="e-tamano"{% endif %}>
+        <legend>Tamaño</legend>
+        <div class="opciones">
+          {% for clave, nombre in cfg.TAMANOS.items() %}
+          <label class="opcion">
+            <input type="radio" name="tamano" value="{{ clave }}" required {% if v.tamano == clave %}checked{% endif %}>
+            <span>{{ nombre }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        {% if errores.tamano %}<p class="error" id="e-tamano">{{ errores.tamano }}</p>{% endif %}
+      </fieldset>
+
+      <fieldset class="campo" {% if errores.dia %}aria-describedby="e-dia"{% endif %}>
+        <legend>Día preferido</legend>
+        <p class="ayuda">Cupos reales, actualizados con cada reserva.</p>
+        <div class="dias">
+          {% for d in dias %}
+          <label class="dia {% if not d.reservable %}off{% elif d.libres <= 3 %}pocos{% endif %}">
+            <input type="radio" name="dia" value="{{ d.fecha_iso }}" required
+                   {% if not d.reservable %}disabled{% endif %}
+                   {% if v.dia == d.fecha_iso and d.reservable %}checked{% endif %}>
+            <span class="dia-nombre">{{ d.dia_semana[:3] }}</span>
+            <span class="dia-num">{{ d.fecha.day }} dic</span>
+            <span class="dia-cupos">
+              {% if d.lleno %}Agotado
+              {% elif not d.reservable %}Cerrado
+              {% elif d.libres == 1 %}Queda 1 cupo
+              {% else %}Quedan {{ d.libres }} cupos{% endif %}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+        {% if errores.dia %}<p class="error" id="e-dia">{{ errores.dia }}</p>{% endif %}
+      </fieldset>
+
+      <div class="trampa" aria-hidden="true">
+        <label for="sitio_web">No llenes este campo</label>
+        <input id="sitio_web" name="sitio_web" type="text" tabindex="-1" autocomplete="off">
+      </div>
+
+      <button class="boton ancho" type="submit" {% if not abiertas %}disabled{% endif %}>
+        Reservar por {{ colones(cfg.PRECIO_OFERTA) }}
+      </button>
+      <p class="nota centro">Pagas el día de la cita. Sin adelantos.</p>
+    </form>
+  </section>
+</main>
+
+<script>
+(function () {
+  var el = document.getElementById("cuenta");
+  if (!el) return;
+  var fin = new Date(el.dataset.limite).getTime();
+  var pad = function (n) { return String(n).padStart(2, "0"); };
+  function tick() {
+    var r = Math.max(0, fin - Date.now());
+    var s = Math.floor(r / 1000);
+    document.getElementById("c-d").textContent = Math.floor(s / 86400);
+    document.getElementById("c-h").textContent = pad(Math.floor(s % 86400 / 3600));
+    document.getElementById("c-m").textContent = pad(Math.floor(s % 3600 / 60));
+    document.getElementById("c-s").textContent = pad(s % 60);
+    if (r <= 0) { el.insertAdjacentHTML("afterend", "<p><strong>Las reservas cerraron.</strong></p>"); return; }
+    setTimeout(tick, 1000);
+  }
+  tick();
+})();
+</script>
+{% endblock %}

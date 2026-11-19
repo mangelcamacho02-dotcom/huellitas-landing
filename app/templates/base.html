@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Baño Navideño Completo · Huellitas Vet{% endblock %}</title>
+  <meta name="description" content="Baño Navideño Completo para tu perro en Huellitas Vet, San José. De {{ colones(cfg.PRECIO_ANCLA) }} a {{ colones(cfg.PRECIO_OFERTA) }}. Cupos limitados por día.">
+  <meta name="theme-color" content="#1f4d3a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip" href="#reservar">Saltar al formulario de reserva</a>
+  {% block content %}{% endblock %}
+  <footer class="pie">
+    <p><strong>Huellitas Vet</strong> · {{ cfg.NEGOCIO_DESCRIPCION }} · {{ cfg.CIUDAD }}</p>
+    <p class="aviso">Negocio y datos ficticios — proyecto académico.</p>
+  </footer>
+</body>
+</html>
