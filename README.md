@@ -4,7 +4,7 @@ Proyecto académico: landing de temporada para **Huellitas Vet** (veterinaria y 
 
 > Negocio y datos ficticios — proyecto académico.
 
-**Landing:** `https://<tu-dominio>.up.railway.app` *(completar tras el despliegue)*
+**Landing:** https://huellitas-landing-production-8ef4023e.up.railway.app
 
 ## Flujo
 
@@ -37,7 +37,7 @@ Claude (conector personalizado)  +  Zernio (segundo conector) ──▶ publica 
 | `listar_leads` | Leads con filtros `dia` (AAAA‑MM‑DD), `tamano` (pequeño/mediano/grande), `limite` (máx. 50). WhatsApp enmascarado (`8***-**12`) |
 | `resumen_campana` | Totales, leads por día y por tamaño, día más lleno y más vacío, leads de los últimos 7 días y sugerencias de qué días promocionar |
 
-URL del conector: `https://<tu-dominio>/mcp-<MCP_PATH_SECRET>/` (con la barra final). Sin `MCP_PATH_SECRET`, queda en `/mcp/`.
+URL del conector: `https://huellitas-landing-production-8ef4023e.up.railway.app/mcp-<MCP_PATH_SECRET>/` (con la barra final). Sin `MCP_PATH_SECRET`, queda en `/mcp/`.
 
 ## Variables de entorno (sin valores en el repo)
 
